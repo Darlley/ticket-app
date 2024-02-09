@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function PriorityDisplay() {
   return (
-    <div>
+    <div className='flex gap-1'>
       <Fire size={16} className='text-red-500' />
       <Fire size={16} className='text-red-500' />
       <Fire size={16} className='text-red-500' />

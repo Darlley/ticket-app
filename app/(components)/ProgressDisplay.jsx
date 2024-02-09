@@ -6,7 +6,7 @@ export default function ProgressDisplay() {
     <div className='w-full h-2 bg-gray-200 rounded-full'>
       <div className={
         clsx(
-          true &&  'w-[75%]',
+          true && 'w-[75%]',
           'bg-blue-600 h-2 rounded-full',
         )
       } />
