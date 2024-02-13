@@ -13,8 +13,8 @@ const startingTicketData = {
   description: '',
   category: categories[2],
   priority: 1,
-  status: statusList[0],
   progress: 0,
+  status: statusList[0],
   active: false,
 };
 
@@ -50,7 +50,6 @@ export default function TicketForm() {
       throw new Error('Failed to create Ticket');
     }
 
-    router.refresh();
     router.push('/');
   }
 
