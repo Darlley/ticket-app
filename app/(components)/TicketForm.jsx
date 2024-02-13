@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
+import { RadioGroup } from '@headlessui/react';
 
 const startingTicketData = {
   title: 'ok',
@@ -11,28 +12,63 @@ const startingTicketData = {
   priority: 1,
   status: 'not started',
   active: true,
+  progress: 0,
 };
 
+const categories = [
+  {
+    name: 'Startup',
+    priceMonthly: 29,
+    priceYearly: 290,
+    limit: 'Up to 5 active job postings',
+  },
+  {
+    name: 'Business',
+    priceMonthly: 99,
+    priceYearly: 990,
+    limit: 'Up to 25 active job postings',
+  },
+  {
+    name: 'Enterprise',
+    priceMonthly: 249,
+    priceYearly: 2490,
+    limit: 'Unlimited active job postings',
+  },
+];
+
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
+
 export default function TicketForm() {
+  // const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  
   const router = useRouter();
-  const { register, handleSubmit, watch, control } = useForm({
+  const { register, handleSubmit, watch, control, setValue } = useForm({
     defaultValues: startingTicketData,
   });
   const watchData = useWatch({ control });
+  
+  const selectedCategory = useWatch({
+    control,
+    name: 'selectedCategory',
+    defaultValue: categories[0]
+  })
 
   async function onSubmit(data) {
-    const response = await fetch("http://localhost:3000/api", {
-      method: "POST",
+    const response = await fetch('http://localhost:3000/api', {
+      method: 'POST',
       body: JSON.stringify(data),
-      "content-type": "application/json"
-    })
+      'content-type': 'application/json',
+    });
 
-    if(!response.ok){
-      throw new Error("Failed to create Ticket")
+    if (!response.ok) {
+      throw new Error('Failed to create Ticket');
     }
 
-    router.refresh()
-    router.push('/')
+    router.refresh();
+    router.push('/');
   }
 
   return (
@@ -47,6 +83,7 @@ export default function TicketForm() {
             <p>Create Your Ticket</p>
           </div>
 
+          {/* Title */}
           <div className="relative">
             <input
               id="title"
@@ -88,6 +125,7 @@ export default function TicketForm() {
             </small>
           </div>
 
+          {/* Description */}
           <div className="relative">
             <textarea
               type="text"
@@ -108,6 +146,7 @@ export default function TicketForm() {
             </small>
           </div>
 
+          {/* Category */}
           <div className="relative">
             <select
               {...register('category')}
@@ -223,7 +262,7 @@ export default function TicketForm() {
 
           <div className="relative flex flex-wrap items-center">
             <input
-              className="w-4 h-4 transition-colors bg-white border-2 rounded appearance-none cursor-pointer focus-visible:outline-none peer border-slate-500 checked:border-emerald-500 checked:bg-emerald-500 checked:hover:border-emerald-600 checked:hover:bg-emerald-600 focus:outline-none checked:focus:border-emerald-700 checked:focus:bg-emerald-700 disabled:cursor-not-allowed disabled:border-slate-100 disabled:bg-slate-50"
+              className="w-4 h-4 transition-colors bg-white border-2 rounded appearance-none cursor-pointer focus-visible:outline-none peer border-slate-500 checked:border-pink-500 checked:bg-pink-500 checked:hover:border-pink-600 checked:hover:bg-pink-600 focus:outline-none checked:focus:border-pink-700 checked:focus:bg-pink-700 disabled:cursor-not-allowed disabled:border-slate-100 disabled:bg-slate-50"
               type="checkbox"
               {...register('active')}
               id="active"
@@ -258,6 +297,96 @@ export default function TicketForm() {
               />
             </svg>
           </div>
+
+          <RadioGroup onChange={(selectedCategory) => setValue('selectedCategory', selectedCategory)}>
+
+            <RadioGroup.Label className="sr-only">
+              Pricing plans
+            </RadioGroup.Label>
+            <div className="relative  -space-y-px rounded-md bg-gray-950">
+              {categories.map((plan, planIdx) => (
+                <RadioGroup.Option
+                  key={plan.name}
+                  value={plan}
+                  className={({ checked }) =>
+                    classNames(
+                      planIdx === 0 ? 'rounded-tl-md rounded-tr-md' : '',
+                      planIdx === categories.length - 1
+                        ? 'rounded-bl-md rounded-br-md'
+                        : '',
+                      checked
+                        ? 'z-10 border-pink-200 bg-pink-500'
+                        : 'border-gray-200',
+                      'relative flex cursor-pointer flex-col border p-4 focus:outline-none md:grid md:grid-cols-3 md:pl-4 md:pr-6'
+                    )
+                  }
+                >
+                  {({ active, checked }) => (
+                    <>
+                      <span className="flex items-center text-sm">
+                        <span
+                          className={classNames(
+                            checked
+                              ? 'bg-pink-600 border-transparent'
+                              : 'bg-white border-gray-300',
+                            active ? 'ring-2 ring-offset-2 ring-pink-600' : '',
+                            'h-4 w-4 rounded-full border flex items-center justify-center'
+                          )}
+                          aria-hidden="true"
+                        >
+                          <span className="rounded-full bg-white w-1.5 h-1.5" />
+                        </span>
+                        <RadioGroup.Label
+                          as="span"
+                          className={classNames(
+                            checked ? 'text-pink-100' : 'text-gray-900',
+                            'ml-3 font-medium'
+                          )}
+                        >
+                          {plan.name}
+                        </RadioGroup.Label>
+                      </span>
+                      <RadioGroup.Description
+                        as="span"
+                        className="ml-6 pl-1 text-sm md:ml-0 md:pl-0 md:text-center"
+                      >
+                        <span
+                          className={classNames(
+                            checked ? 'text-pink-300' : 'text-gray-900',
+                            'font-medium'
+                          )}
+                        >
+                          ${plan.priceMonthly} / mo
+                        </span>{' '}
+                        <span
+                          className={
+                            checked ? 'text-pink-300' : 'text-gray-500'
+                          }
+                        >
+                          (${plan.priceYearly} / yr)
+                        </span>
+                      </RadioGroup.Description>
+                      <RadioGroup.Description
+                        as="span"
+                        className={classNames(
+                          checked ? 'text-pink-300' : 'text-gray-500',
+                          'ml-6 pl-1 text-sm md:ml-0 md:pl-0 md:text-right'
+                        )}
+                      >
+                        {plan.limit}
+                      </RadioGroup.Description>
+                    </>
+                  )}
+                </RadioGroup.Option>
+              ))}
+            </div>
+          </RadioGroup>
+
+          <input min="1" max="5" type="range" name="" id="" className='accent-pink-500 w-full' 
+          />
+          
+          <input min="0" max="100" type="range" name="" id="" className='accent-pink-500 w-full' 
+          />
         </div>
 
         <button type="submit" className="mt-12">
