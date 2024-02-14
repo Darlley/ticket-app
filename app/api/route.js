@@ -1,14 +1,9 @@
 import { NextResponse } from 'next/server';
 import Ticket from '../(models)/Ticket';
 
-export async function GET(request) {
-  return NextResponse.json({message: "ok"})
-}
-
 export async function POST(request) {
   try {
     const data = await request.json();
-    console.log("data", data)
     await Ticket.create(data);
 
     return NextResponse.json(
@@ -28,7 +23,30 @@ export async function POST(request) {
         status: 500,
       }
     );
-  } finally {
-    console.log(process.env.MONGODB_URI)
+  }
+}
+
+export async function GET() {
+  try {
+    const tickets = await Ticket.find();
+
+    return NextResponse.json(
+      {
+        tickets
+      },
+      {
+        status: 200,
+      }
+    );
+    
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error,
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }

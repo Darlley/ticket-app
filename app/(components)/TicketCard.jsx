@@ -4,28 +4,31 @@ import PriorityDisplay from './PriorityDisplay';
 import ProgressDisplay from './ProgressDisplay';
 import StatusDisplay from './StatusDisplay';
 
-export default function TicketCard() {
+import {format} from 'date-fns'
+import pt from 'date-fns/locale/pt'
+
+export default function TicketCard({ticket}) {
   return (
-    <div className="flex flex-col bg-card hover:bg-card-hover rounded-md shadow-lg p-3 m-2">
+    <div className="flex flex-col bg-card/50 backdrop-blur-md hover:bg-card-hover/50 transition-colors rounded-md shadow-lg p-3 m-2">
       <div className="flex mb-3">
-        <PriorityDisplay />
+        <PriorityDisplay priority={ticket?.priority ?? 1} />
         <div className="flex ml-auto">
           <DeleteBlock />
         </div>
       </div>
-      <h4>Ticket Title</h4>
+      <h4>{ticket?.title ?? ''}</h4>
       <hr className="h-px border-0 bg-page/40 my-2" />
       <p className="whitespace-pre-wrap">
-        this is the ticket description. Please do this ticket!
+        {ticket?.description ?? ''}
       </p>
       <div className="flex-grow"></div>
       <div className="flex mt-2 justify-between">
         <div className="flex flex-col">
-          <p className="my-1">08:31/23 10:43px</p>
-          <ProgressDisplay />
+          <p className="my-1">{format(ticket.createdAt, 'dd/mm/yy HH:mm a',{locale: pt})}</p>
+          <ProgressDisplay progress={ticket.progress} />
         </div>
         <div className="self-end">
-          <StatusDisplay />
+          <StatusDisplay status={ticket.status} />
         </div>
       </div>
     </div>
