@@ -40,7 +40,7 @@ export default function TicketForm() {
   });
 
   async function onSubmit(data) {
-    const response = await fetch('http://localhost:3000/api', {
+    const response = await fetch('http://localhost:3000/api/tickets', {
       method: 'POST',
       body: JSON.stringify(data),
       'content-type': 'application/json',
