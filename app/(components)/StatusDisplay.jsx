@@ -13,7 +13,7 @@ export default function StatusDisplay({status}) {
         )
       }
     >
-      Done
+      {status}
     </span>
   )
 }

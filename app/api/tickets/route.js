@@ -1,5 +1,5 @@
+import Ticket from '@/app/(models)/Ticket';
 import { NextResponse } from 'next/server';
-import Ticket from '../(models)/Ticket';
 
 export async function POST(request) {
   try {
