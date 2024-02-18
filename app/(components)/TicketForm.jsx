@@ -8,49 +8,74 @@ import { useForm, useWatch } from 'react-hook-form';
 const categories = ['Hardware Problem', 'Software Problem', 'Project'];
 const statusList = ['not started', 'started', 'done'];
 
-const startingTicketData = {
-  title: 'New Ticket',
-  description: '',
-  category: categories[2],
-  priority: 1,
-  progress: 0,
-  status: statusList[0],
-  active: false,
-};
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function TicketForm() {
+export default function TicketForm({ ticket, EDIT_MODE }) {
+  const startingTicketData = {
+    title: 'New Ticket',
+    description: '',
+    category: categories[2],
+    priority: 1,
+    progress: 0,
+    status: statusList[0],
+    active: false,
+  };
+
+  if(EDIT_MODE) {
+    startingTicketData['title'] = ticket.title;
+    startingTicketData['description'] = ticket.description;
+    startingTicketData['category'] = ticket.category;
+    startingTicketData['priority'] = ticket.priority;
+    startingTicketData['progress'] = ticket.progress;
+    startingTicketData['status'] = ticket.status;
+    startingTicketData['active'] = ticket.active;
+  }
+
   const router = useRouter();
   const { register, handleSubmit, watch, control, setValue } = useForm({
     defaultValues: startingTicketData,
   });
-  const watchData = useWatch({ control });
 
   const category = useWatch({
     control,
-    name: 'category'
+    name: 'category',
   });
 
   const selectedStatus = useWatch({
     control,
-    name: 'status'
+    name: 'status',
   });
 
   async function onSubmit(data) {
-    const response = await fetch('http://localhost:3000/api/tickets', {
-      method: 'POST',
-      body: JSON.stringify(data),
-      'content-type': 'application/json',
-    });
+    if(EDIT_MODE){
+      const response = await fetch(`http://localhost:3000/api/tickets/${ticket._id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        'content-type': 'application/json',
+      });
 
-    if (!response.ok) {
-      throw new Error('Failed to create Ticket');
+      if (!response.ok) {
+        throw new Error('Failed to Update Ticket');
+      }
+
+      router.refresh();
+
+    } else{
+      const response = await fetch('http://localhost:3000/api/tickets', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        'content-type': 'application/json',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create Ticket');
+      }
+
+      router.refresh();
+      return router.push('/');
     }
-
-    router.push('/');
   }
 
   return (
@@ -61,7 +86,7 @@ export default function TicketForm() {
       >
         <div className="flex flex-col gap-4">
           <div className="my-4">
-            <h3>Create Your Ticket</h3>
+            <h3>{EDIT_MODE ? `Updated Ticket "${watch('title')}"` : 'Create Your Ticket' }</h3>
             <p>Create Your Ticket</p>
           </div>
 
@@ -309,7 +334,9 @@ export default function TicketForm() {
               Activate
             </label>
             <small className="w-full py-2 pl-6 text-xs transition text-slate-400 peer-invalid:text-red-500">
-              <span>Seu ticket será ativado automaticamente após a criação</span>
+              <span>
+                Seu ticket será ativado automaticamente após a criação
+              </span>
             </small>
             <svg
               className="absolute left-0 w-4 h-4 transition-all duration-300 -rotate-90 opacity-0 pointer-events-none top-1 fill-white stroke-white peer-checked:rotate-0 peer-checked:opacity-100 peer-disabled:cursor-not-allowed"
@@ -338,11 +365,10 @@ export default function TicketForm() {
           type="submit"
           className="inline-flex my-6 items-center justify-center gap-x-2 rounded-md bg-blue-900 px-3.5 py-2.5 text-sm font-semibold text-blue-200 shadow-sm hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 w-full transition-colors hover:shadow-2xl"
         >
-          Create Ticket
-          <Plus size={20} className='text-blue-400' weight="bold"  />
+          { EDIT_MODE ? 'Updated Ticket' : 'Create Ticket' }
+          <Plus size={20} className="text-blue-400" weight="bold" />
         </button>
       </form>
-      <p>Os dados do formulário são: {JSON.stringify(watchData)}</p>
     </div>
   );
 }
